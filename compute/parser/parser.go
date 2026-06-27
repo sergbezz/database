@@ -1,23 +1,11 @@
 package parser
 
 import (
+	"database/compute"
 	"errors"
 	"strings"
 	"unicode"
 )
-
-type CommandType string
-
-const (
-	CommandSet CommandType = "SET"
-	CommandGet CommandType = "GET"
-	CommandDel CommandType = "DEL"
-)
-
-type Command struct {
-	Type CommandType
-	Args []string
-}
 
 type Parser struct{}
 
@@ -25,7 +13,7 @@ func NewParser() *Parser {
 	return &Parser{}
 }
 
-func (p *Parser) Parse(query string) (*Command, error) {
+func (p *Parser) Parse(query string) (*compute.Command, error) {
 	query = strings.TrimSpace(query)
 	if query == "" {
 		return nil, errors.New("empty query")
@@ -42,33 +30,24 @@ func (p *Parser) Parse(query string) (*Command, error) {
 
 	cmdType := strings.ToUpper(tokens[0])
 
-	switch CommandType(cmdType) {
-	case CommandSet:
+	switch compute.CommandType(cmdType) {
+	case compute.CommandSet:
 		if len(tokens) != 3 {
 			return nil, errors.New("SET requires exactly 2 arguments")
 		}
-		return &Command{
-			Type: CommandSet,
-			Args: tokens[1:],
-		}, nil
+		return &compute.Command{Type: compute.CommandSet, Args: tokens[1:]}, nil
 
-	case CommandGet:
+	case compute.CommandGet:
 		if len(tokens) != 2 {
 			return nil, errors.New("GET requires exactly 1 argument")
 		}
-		return &Command{
-			Type: CommandGet,
-			Args: tokens[1:],
-		}, nil
+		return &compute.Command{Type: compute.CommandGet, Args: tokens[1:]}, nil
 
-	case CommandDel:
+	case compute.CommandDel:
 		if len(tokens) != 2 {
 			return nil, errors.New("DEL requires exactly 1 argument")
 		}
-		return &Command{
-			Type: CommandDel,
-			Args: tokens[1:],
-		}, nil
+		return &compute.Command{Type: compute.CommandDel, Args: tokens[1:]}, nil
 
 	default:
 		return nil, errors.New("unknown command: " + cmdType)

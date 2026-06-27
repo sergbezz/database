@@ -3,6 +3,8 @@ package main
 import (
 	"bufio"
 	"database/compute"
+	"database/compute/parser"
+	"database/db"
 	"database/storage"
 	"database/storage/engine"
 	"fmt"
@@ -25,7 +27,13 @@ func main() {
 
 	eng := engine.NewInMemoryEngine(logger)
 	stor := storage.NewStorage(eng, logger)
-	comp := compute.NewCompute(stor, logger)
+	comp := compute.NewCompute(parser.NewParser(), logger)
+
+	database, err := db.NewDatabase(comp, stor, logger)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Failed to initialize database: %v\n", err)
+		os.Exit(1)
+	}
 
 	scanner := bufio.NewScanner(os.Stdin)
 	fmt.Println("KV Database v1.0")
@@ -47,7 +55,7 @@ func main() {
 			break
 		}
 
-		result, err := comp.Execute(query)
+		result, err := database.HandleQuery(query)
 		if err != nil {
 			fmt.Printf("Error: %v\n", err)
 		} else {

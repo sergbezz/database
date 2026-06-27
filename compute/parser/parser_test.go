@@ -1,6 +1,7 @@
 package parser
 
 import (
+	"database/compute"
 	"testing"
 )
 
@@ -27,7 +28,7 @@ func TestParseSetCommand(t *testing.T) {
 				t.Errorf("Parse() error = %v, wantErr %v", err, tt.wantErr)
 				return
 			}
-			if !tt.wantErr && cmd.Type != CommandSet {
+			if !tt.wantErr && cmd.Type != compute.CommandSet {
 				t.Errorf("Expected SET command, got %v", cmd.Type)
 			}
 		})
@@ -57,7 +58,7 @@ func TestParseGetCommand(t *testing.T) {
 				return
 			}
 			if !tt.wantErr {
-				if cmd.Type != CommandGet {
+				if cmd.Type != compute.CommandGet {
 					t.Errorf("Expected GET command, got %v", cmd.Type)
 				}
 				if cmd.Args[0] != tt.wantKey {
@@ -76,7 +77,7 @@ func TestParseDelCommand(t *testing.T) {
 		t.Fatalf("Unexpected error: %v", err)
 	}
 
-	if cmd.Type != CommandDel {
+	if cmd.Type != compute.CommandDel {
 		t.Errorf("Expected DEL command, got %v", cmd.Type)
 	}
 
@@ -95,7 +96,7 @@ func TestParseCaseInsensitive(t *testing.T) {
 		if err != nil {
 			t.Errorf("Parse(%q) unexpected error: %v", query, err)
 		}
-		if cmd.Type != CommandSet {
+		if cmd.Type != compute.CommandSet {
 			t.Errorf("Parse(%q) expected SET, got %v", query, cmd.Type)
 		}
 	}
